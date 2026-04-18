@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOIR — Koktejlový Bar & Catering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #050507;
+      --deep: #0a0a12;
+      --blue-dark: #0d0f2a;
+      --blue-mid: #1a1f5e;
+      --blue: #2338c8;
+      --blue-light: #4a6cf7;
+      --violet: #6b21e8;
+      --violet-light: #9b59f5;
+      --accent: #c084fc;
+      --glow-blue: rgba(74, 108, 247, 0.35);
+      --glow-violet: rgba(155, 89, 245, 0.3);
+      --text: #e8e8f0;
+      --text-dim: #8888aa;
+      --border: rgba(100, 100, 180, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CUSTOM CURSOR */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid var(--blue-light);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.25s ease, width 0.3s, height 0.3s;
+      mix-blend-mode: screen;
+    }
+    body:has(a:hover) .cursor-ring,
+    body:has(button:hover) .cursor-ring {
+      width: 56px; height: 56px;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.5;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 4rem;
+      background: linear-gradient(to bottom, rgba(5,5,7,0.95), transparent);
+      backdrop-filter: blur(2px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.3em;
+      background: linear-gradient(135deg, var(--blue-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: linear-gradient(135deg, var(--blue-light), var(--violet-light));
+      border: none;
+      padding: 0.7rem 1.8rem;
+      cursor: none;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      background: var(--black);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(26, 31, 94, 0.6) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 30%, rgba(107, 33, 232, 0.3) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 40% at 60% 80%, rgba(35, 56, 200, 0.2) 0%, transparent 50%);
+    }
+    /* Animated orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(74,108,247,0.18), transparent 70%);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(107,33,232,0.2), transparent 70%);
+      bottom: -50px; right: 10%;
+      animation-delay: -3s;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(155,89,245,0.15), transparent 70%);
+      top: 40%; left: 50%;
+      animation-delay: -5s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 15px) scale(0.97); }
+    }
+
+    /* Decorative lines */
+    .hero-line {
+      position: absolute;
+      background: linear-gradient(to right, transparent, var(--blue-light), transparent);
+      height: 1px;
+      opacity: 0.15;
+    }
+    .hero-line-1 { width: 60%; top: 30%; left: 20%; }
+    .hero-line-2 { width: 40%; top: 70%; left: 30%; opacity: 0.08; }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      padding: 0 2rem;
+      animation: heroIn 1.2s ease forwards;
+      opacity: 0;
+    }
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 1rem;
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: '';
+      width: 40px; height: 1px;
+      background: var(--blue-light);
+      opacity: 0.5;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 14vw, 13rem);
+      line-height: 0.88;
+      letter-spacing: 0.05em;
+      background: linear-gradient(160deg, #ffffff 0%, var(--blue-light) 40%, var(--violet-light) 70%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 0 60px rgba(107,33,232,0.25));
+    }
+    .hero-subtitle {
+      font-size: 1.3rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text-dim);
+      max-width: 500px;
+      margin: 0 auto 3rem;
+    }
+    .hero-cta-group {
+      display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--black);
+      background: linear-gradient(135deg, var(--blue-light), var(--violet));
+      padding: 1rem 2.5rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 30px rgba(74,108,247,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 50px rgba(74,108,247,0.5);
+    }
+    .btn-secondary {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 1rem 2.5rem;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      z-index: 2;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    .hero-scroll::after {
+      content: '';
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--blue-light), transparent);
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative;
+      padding: 7rem 4rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .section-full { max-width: 100%; padding-left: 0; padding-right: 0; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .section-title em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--blue-light), var(--violet-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+    .about-text p {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      margin-bottom: 1.2rem;
+      font-weight: 300;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-card {
+      background: linear-gradient(135deg, rgba(26,31,94,0.4), rgba(10,10,18,0.8));
+      border: 1px solid var(--border);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, transparent, var(--blue-light), var(--violet-light), transparent);
+    }
+    .about-card-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--blue-light), var(--violet-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .about-card p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+    .about-cards-stack {
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+
+    /* MENU / KOKTEJLY */
+    .menu-section {
+      background: linear-gradient(to bottom, transparent, rgba(13,15,42,0.5), transparent);
+      padding: 7rem 0;
+    }
+    .menu-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 4rem;
+    }
+    .menu-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 4rem;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: var(--border);
+    }
+    .menu-item {
+      background: var(--black);
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s;
+    }
+    .menu-item:hover {
+      background: rgba(26,31,94,0.3);
+    }
+    .menu-item::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: linear-gradient(to right, var(--blue-light), var(--violet-light));
+      transition: width 0.5s ease;
+    }
+    .menu-item:hover::after { width: 100%; }
+    .menu-item-category {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--violet-light);
+      margin-bottom: 1rem;
+    }
+    .menu-item-name {
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-bottom: 0.8rem;
+      line-height: 1.2;
+    }
+    .menu-item-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      font-weight: 300;
+      margin-bottom: 1.5rem;
+    }
+    .menu-item-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+    .menu-icon {
+      position: absolute;
+      top: 2rem; right: 2rem;
+      font-size: 2rem;
+      opacity: 0.15;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .menu-item:hover .menu-icon {
+      opacity: 0.4;
+      transform: rotate(-10deg) scale(1.1);
+    }
+
+    /* CATERING */
+    .catering-layout {
+      display: grid;
+      grid-template-columns: 5fr 4fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .catering-features {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .feature-box {
+      border: 1px solid var(--border);
+      padding: 1.8rem;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .feature-box:hover { border-color: rgba(155,89,245,0.3); }
+    .feature-box::before {
+      content: '';
+      position: absolute; top: -1px; left: 0;
+      width: 40px; height: 1px;
+      background: var(--violet-light);
+    }
+    .feature-box h4 {
+      font-size: 1.05rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+    .feature-box p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      line-height: 1.5;
+    }
+    .catering-aside {
+      position: sticky; top: 8rem;
+    }
+    .catering-highlight {
+      background: linear-gradient(135deg, rgba(107,33,232,0.1), rgba(35,56,200,0.1));
+      border: 1px solid rgba(107,33,232,0.2);
+      padding: 3rem;
+      text-align: center;
+    }
+    .catering-highlight .big-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      background: linear-gradient(135deg, var(--blue-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: block;
+      line-height: 1;
+    }
+    .catering-highlight p {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+      margin-top: 0.5rem;
+    }
+    .catering-highlight-divider {
+      width: 1px;
+      height: 30px;
+      background: var(--border);
+      margin: 1.5rem auto;
+    }
+
+    /* TESTIMONIALS */
+    .testimonials-bg {
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 50%, rgba(26,31,94,0.3), transparent);
+      padding: 7rem 0;
+    }
+    .testimonials-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 4rem;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+    .testimonial-card {
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      position: relative;
+    }
+
+    /* PODCAST */
+    .podcast-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 4rem;
+      align-items: center;
+    }
+    .podcast-lead {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      margin-bottom: 1.4rem;
+      font-weight: 300;
+    }
+    .podcast-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .podcast-meta strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+    .podcast-player {
+      width: 100%;
+    }
+    .podcast-card {
+      border-radius: 1.4rem;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at 0 0, rgba(74,108,247,0.25), transparent 55%), rgba(5,5,10,0.95);
+      padding: 1.8rem 2rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+    }
+    .podcast-card-header {
+      margin-bottom: 0.9rem;
+    }
+    .podcast-episode-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 0.4rem;
+    }
+    .podcast-episode-title {
+      font-size: 1.3rem;
+      font-weight: 400;
+    }
+    .podcast-episode-desc {
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      margin-bottom: 1.2rem;
+    }
+    .podcast-audio {
+      width: 100%;
+      margin-top: 0.3rem;
+      accent-color: var(--blue-light);
+    }
+
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: 1.5rem; left: 2rem;
+      font-size: 5rem;
+      font-family: 'Cormorant Garamond', serif;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--blue-light), var(--violet-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0.3;
+    }
+    .testimonial-text {
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+      padding-top: 2rem;
+    }
+    .testimonial-author {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .testimonial-company {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--blue-light);
+      margin-top: 0.3rem;
+    }
+
+    /* CONTACT */
+    .contact-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+    .contact-info p {
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .contact-detail {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .contact-detail-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    .contact-detail-value {
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+    .contact-form {
+      display: flex; flex-direction: column; gap: 1.2rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .form-input, .form-textarea, .form-select {
+      background: rgba(26,31,94,0.15);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.9rem 1.2rem;
+      color: var(--text);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--violet-light);
+    }
+    .form-textarea { min-height: 120px; resize: vertical; }
+    .form-select option { background: var(--deep); }
+    .form-submit {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: linear-gradient(135deg, var(--blue-light), var(--violet));
+      border: none;
+      padding: 1.1rem 2rem;
+      cursor: none;
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: 0 0 30px rgba(107,33,232,0.25);
+      align-self: flex-start;
+    }
+    .form-submit:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.3em;
+      background: linear-gradient(135deg, var(--blue-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+    }
+    .footer-links {
+      display: flex; gap: 2rem; list-style: none;
+    }
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* DIVIDERS */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 0 auto;
+    }
+
+    /* CHATBOT */
+    .chatbot-toggle {
+      position: fixed;
+      right: 2.5rem;
+      bottom: 2.5rem;
+      z-index: 600;
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.92);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+    .chatbot-toggle span {
+      display: block;
+      text-align: center;
+    }
+    .chatbot-toggle::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid transparent;
+      transition: border-color 0.18s ease;
+    }
+    .chatbot-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+      background: rgba(15, 23, 42, 0.98);
+      color: #ffffff;
+    }
+    .chatbot-toggle:hover::before {
+      border-color: rgba(129, 140, 248, 0.8);
+    }
+    .chatbot-toggle-dot {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.22);
+    }
+
+    .chatbot-panel {
+      position: fixed;
+      right: 2.5rem;
+      bottom: 2.5rem;
+      width: min(380px, 100vw - 3rem);
+      max-height: min(540px, 80vh);
+      background: radial-gradient(circle at top, rgba(26,31,94,0.75), rgba(10,10,18,0.98));
+      border-radius: 1.4rem;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(18px) saturate(130%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 650;
+      transform-origin: 100% 100%;
+      transform: scale(0.96) translateY(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+    .chatbot-panel.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
+
+    .chatbot-header {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid rgba(75, 85, 99, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .chatbot-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .chatbot-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.3), transparent 55%),
+        linear-gradient(135deg, var(--blue-light), var(--violet-light));
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.2em;
+    }
+    .chatbot-title {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .chatbot-title-main {
+      font-size: 0.9rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-family: 'DM Mono', monospace;
+    }
+    .chatbot-title-sub {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .chatbot-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(74, 108, 247, 0.65);
+      background: rgba(15, 23, 42, 0.9);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .chatbot-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.24);
+    }
+
+    .chatbot-body {
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem 0.8rem 0.8rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      min-height: 120px;
+      max-height: 100%;
+      overflow-y: auto;
+      padding: 0.4rem 0.2rem 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      font-size: 0.8rem;
+    }
+    .chatbot-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chatbot-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .chatbot-messages::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, rgba(74,108,247,0.5), rgba(155,89,245,0.75));
+      border-radius: 999px;
+    }
+
+    .chatbot-message-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.4rem;
+    }
+    .chatbot-message-row.bot {
+      justify-content: flex-start;
+    }
+    .chatbot-message-row.user {
+      justify-content: flex-end;
+    }
+    .chatbot-message-row > div {
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .chatbot-message-row.user > div {
+      align-items: flex-end;
+    }
+
+    .chatbot-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 0.1rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-dim);
+      margin-bottom: 0.2rem;
+    }
+    .chatbot-badge.bot {
+      border-color: rgba(74, 108, 247, 0.8);
+      color: #c7d2fe;
+    }
+    .chatbot-badge.user {
+      border-color: rgba(155, 89, 245, 0.85);
+      color: #f5d0fe;
+    }
+
+    .chatbot-bubble {
+      max-width: 100%;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.9rem;
+      border: 1px solid transparent;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      text-align: left;
+    }
+    .chatbot-bubble.bot {
+      background:
+        radial-gradient(circle at 0 0, rgba(74,108,247,0.18), transparent 60%),
+        rgba(10,10,18,0.96);
+      border-color: rgba(75, 85, 99, 0.9);
+      border-top-left-radius: 0.3rem;
+    }
+    .chatbot-bubble.user {
+      background:
+        radial-gradient(circle at 10% 0, rgba(255,255,255,0.2), transparent 60%),
+        linear-gradient(135deg, var(--blue-light), var(--violet-light));
+      border-color: rgba(129, 140, 248, 0.9);
+      color: #0b1020;
+      border-bottom-right-radius: 0.3rem;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.9);
+    }
+
+    .chatbot-system {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+      opacity: 0.85;
+    }
+    .chatbot-system-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--violet-light);
+    }
+
+    .chatbot-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+    }
+    .chatbot-suggestion {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 0.25rem 0.6rem;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      background: rgba(15, 23, 42, 0.9);
+      cursor: none;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+    .chatbot-suggestion:hover {
+      border-color: rgba(155, 89, 245, 0.9);
+      color: #f5d0fe;
+      background: rgba(24, 24, 42, 0.95);
+    }
+
+    .chatbot-input-row {
+      margin-top: 0.35rem;
+      padding-top: 0.55rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.9);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .chatbot-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 0.55rem 0.9rem;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    }
+    .chatbot-input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+    .chatbot-send {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 0%, rgba(255,255,255,0.2), transparent 55%),
+        linear-gradient(135deg, var(--blue-light), var(--violet));
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+      color: #fff;
+      cursor: none;
+      flex-shrink: 0;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+    .chatbot-send:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.95);
+    }
+    .chatbot-send-icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    .chatbot-typing {
+      display: inline-flex;
+      gap: 0.16rem;
+      align-items: center;
+    }
+    .chatbot-typing span {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.85);
+      animation: chatbotDots 1.4s infinite ease-in-out;
+    }
+    .chatbot-typing span:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+    .chatbot-typing span:nth-child(3) {
+      animation-delay: 0.34s;
+    }
+    @keyframes chatbotDots {
+      0%, 80%, 100% { transform: scale(0.7) translateY(0); opacity: 0.6; }
+      40% { transform: scale(1) translateY(-1px); opacity: 1; }
+    }
+
+    /* SCROLL ANIMATIONS */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.5rem; }
+      .about-grid, .catering-layout, .contact-wrap, .podcast-wrap { grid-template-columns: 1fr; gap: 3rem; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .catering-aside { position: static; }
+      footer { padding: 2rem 1.5rem; flex-direction: column; text-align: center; }
+      .menu-inner, .testimonials-inner { padding: 0 1.5rem; }
+
+      .chatbot-toggle {
+        right: 1.2rem;
+        bottom: 1.5rem;
+        width: 56px;
+        height: 56px;
+      }
+      .chatbot-panel {
+        right: 1.2rem;
+        bottom: 1.5rem;
+        width: calc(100vw - 2.4rem);
+        max-height: 75vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">NOIR</a>
+    <ul class="nav-links">
+      <li><a href="#about">O nás</a></li>
+      <li><a href="#menu">Koktejly</a></li>
+      <li><a href="#catering">Catering</a></li>
+      <li><a href="#podcast">Podcast</a></li>
+      <li><a href="#contact">Kontakt</a></li>
+    </ul>
+    <button class="nav-cta">Rezervace</button>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="hero-line hero-line-1"></div>
+    <div class="hero-line hero-line-2"></div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">Praha — Koktejlový bar & catering</div>
+      <h1 class="hero-title">NOIR</h1>
+      <p class="hero-subtitle">Kde se řemeslo stává uměním a každý drink vypráví svůj příběh.</p>
+      <div class="hero-cta-group">
+        <a href="#menu" class="btn-primary">Naše nápoje</a>
+        <a href="#catering" class="btn-secondary">Catering pro události</a>
+      </div>
+    </div>
+
+    <div class="hero-scroll">scroll</div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <div class="section-label">O nás</div>
+        <h2 class="section-title">Mixologie jako <em>umělecká forma</em></h2>
+        <p>NOIR je víc než bar. Je to prostor, kde se setkává preciznost řemesla, fascinace chutěmi a vášeň pro dokonalý zážitek — v každém skle, při každé příležitosti.</p>
+        <p>Naši barmani pracují s destilovanými duchy, molekulárními technikami a lokálními surovinami. Každý drink je navržen tak, aby překvapil, potěšil a zůstal v paměti.</p>
+        <p>Od intímních večerů u baru po velkolepé firemní eventy — přinášíme náš přístup kamkoli pozvete.</p>
+        <br/>
+        <a href="#catering" class="btn-secondary">Zjistit více o cateringu →</a>
+      </div>
+      <div class="about-visual reveal reveal-delay-2">
+        <div class="about-cards-stack">
+          <div class="about-card">
+            <div class="about-card-number">8+</div>
+            <p>let za barem a v terénu</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-number">500+</div>
+            <p>úspěšně obsloužených událostí</p>
+          </div>
+          <div class="about-card">
+            <div class="about-card-number">40+</div>
+            <p>originálních signature drinků</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MENU -->
+  <div class="menu-section section-full" id="menu">
+    <div class="menu-inner">
+      <div class="menu-header reveal">
+        <div>
+          <div class="section-label">Koktejlové menu</div>
+          <h2 class="section-title">Naše <em>signature</em> drinky</h2>
+        </div>
+        <a href="#contact" class="btn-secondary">Celé menu na dotaz</a>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-item reveal">
+          <div class="menu-icon">🌑</div>
+          <div class="menu-item-category">Signature</div>
+          <div class="menu-item-name">Midnight Blue</div>
+          <p class="menu-item-desc">Gin, butterfly pea flower, tonic, limetka, rozmarýn. Mění barvu při kontaktu s ledem.</p>
+          <div class="menu-item-price">195 Kč</div>
+        </div>
+        <div class="menu-item reveal reveal-delay-1">
+          <div class="menu-icon">🫧</div>
+          <div class="menu-item-category">Molekulární</div>
+          <div class="menu-item-name">Smoke & Mirror</div>
+          <p class="menu-item-desc">Whisky, dýmový infúz, karamelová pěna, tymiánový olej. Servírováno pod skleněnou kupolí.</p>
+          <div class="menu-item-price">245 Kč</div>
+        </div>
+        <div class="menu-item reveal reveal-delay-2">
+          <div class="menu-icon">🌿</div>
+          <div class="menu-item-category">Wellness 2.0</div>
+          <div class="menu-item-name">Violet Garden</div>
+          <p class="menu-item-desc">Bezalkoholový destilát, levandulový sirup, okurka, yuzu, tónik. Komplexní bez alkoholu.</p>
+          <div class="menu-item-price">165 Kč</div>
+        </div>
+        <div class="menu-item reveal">
+          <div class="menu-icon">🌶️</div>
+          <div class="menu-item-category">Klasika s twistem</div>
+          <div class="menu-item-name">Negroni Oscuro</div>
+          <p class="menu-item-desc">Mezcal, Campari, Carpano Antica, hořká čokoláda, sušená chilli.</p>
+          <div class="menu-item-price">215 Kč</div>
+        </div>
+        <div class="menu-item reveal reveal-delay-1">
+          <div class="menu-icon">🍊</div>
+          <div class="menu-item-category">Sezónní</div>
+          <div class="menu-item-name">Citrus Cosmos</div>
+          <p class="menu-item-desc">Vodka, bergamot, pomerančový květ, perlivé víno. Lehký a svěží aperitiv.</p>
+          <div class="menu-item-price">185 Kč</div>
+        </div>
+        <div class="menu-item reveal reveal-delay-2">
+          <div class="menu-icon">🖤</div>
+          <div class="menu-item-category">Digestiv</div>
+          <div class="menu-item-name">Black Velvet</div>
+          <p class="menu-item-desc">Rum, espresso, aktivní uhlí, vanilkový cukr, smetanová pěna. Noční zakončení.</p>
+          <div class="menu-item-price">205 Kč</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CATERING -->
+  <section id="catering">
+    <div class="catering-layout">
+      <div class="catering-left">
+        <div class="section-label reveal">Catering & Eventy</div>
+        <h2 class="section-title reveal">Bar přijede <em>k vám</em></h2>
+        <p style="color:var(--text-dim); margin-bottom:1rem;" class="reveal">Firemní večírky, svatby, produktové launche, soukromé oslavy — náš mobilní bar dorazí s veškerým vybavením, profesionálním týmem a plně přizpůsobeným menu.</p>
+        <p style="color:var(--text-dim);" class="reveal">Pracujeme s vámi od prvního konceptu až po poslední sklínku. Hyper-personalizace není prázdné slovo — navrhujeme drinky kolem vašeho tématu, značky nebo příběhu.</p>
+
+        <div class="catering-features">
+          <div class="feature-box reveal">
+            <h4>Mobilní bar</h4>
+            <p>Plně vybavený, elegantní pult kamkoli v ČR</p>
+          </div>
+          <div class="feature-box reveal reveal-delay-1">
+            <h4>Signature menu</h4>
+            <p>Drinky navržené přímo pro vaši událost</p>
+          </div>
+          <div class="feature-box reveal reveal-delay-2">
+            <h4>Tým barmanů</h4>
+            <p>Certifikovaní profesionálové s show-barmantstvím</p>
+          </div>
+          <div class="feature-box reveal">
+            <h4>Bez alkoholu</h4>
+            <p>Kompletní mocktail menu stejné kvality</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="catering-aside reveal reveal-delay-2">
+        <div class="catering-highlight">
+          <span class="big-text">50–</span>
+          <span class="big-text">500+</span>
+          <p>hostů na jedné události</p>
+          <div class="catering-highlight-divider"></div>
+          <span class="big-text">Praha</span>
+          <p>a celá ČR</p>
+          <div class="catering-highlight-divider"></div>
+          <span class="big-text">24h</span>
+          <p>doba odpovědi na poptávku</p>
+        </div>
+        <br/>
+        <a href="#contact" class="btn-primary" style="display:block; text-align:center;">Nezávazná poptávka</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TESTIMONIALS -->
+  <div class="testimonials-bg section-full">
+    <div class="testimonials-inner">
+      <div class="section-label reveal">Reference</div>
+      <h2 class="section-title reveal">Co říkají <em>naši klienti</em></h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal">
+          <p class="testimonial-text">NOIR proměnil náš firemní večírek v nezapomenutelný zážitek. Drinky byly krásné, tým profesionální a hosté mluvili o baru ještě týdny poté.</p>
+          <div class="testimonial-author">Markéta V.</div>
+          <div class="testimonial-company">Creative Director, Brand Studio</div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-1">
+          <p class="testimonial-text">Jejich moleculární koktejly jsou naprosté divadlo. Zarezervovala jsem si degustaci a odcházela jsem s úplně novým pohledem na to, co drink může být.</p>
+          <div class="testimonial-author">Tomáš K.</div>
+          <div class="testimonial-company">Gastro blogger & foodie</div>
+        </div>
+        <div class="testimonial-card reveal reveal-delay-2">
+          <p class="testimonial-text">Na naší svatbě obsluhoval bar tým NOIR — signature koktejly pojmenované po nás, bezalkoholová linka pro hosty a absolutní klid ze strany koordinace. Skvělí.</p>
+          <div class="testimonial-author">Lucie & Pavel M.</div>
+          <div class="testimonial-company">Novomanželé</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PODCAST -->
+  <section id="podcast">
+    <div class="podcast-wrap">
+      <div class="podcast-text reveal">
+        <div class="section-label">Podcast</div>
+        <h2 class="section-title">Od tekutého dusíku <em>k hostům u baru</em></h2>
+        <p class="podcast-lead">
+          Poslechněte si rozhovor o tom, jak se z experimentů s tekutým dusíkem a molekulární mixologií stala značka,
+          která dnes prodává zážitky i na LinkedInu.
+        </p>
+        <p class="podcast-meta">
+          Host: <strong>NOIR</strong><br />
+          Délka: ~30 minut
+        </p>
+      </div>
+      <div class="podcast-player reveal reveal-delay-2">
+        <div class="podcast-card">
+          <div class="podcast-card-header">
+            <div class="podcast-episode-label">Epizoda 01</div>
+            <div class="podcast-episode-title">Od tekutého dusíku k prodeji na LinkedInu</div>
+          </div>
+          <p class="podcast-episode-desc">
+            Jak se rodil koncept NOIR, práce s moderními technikami za barem a proč dnes bar žije i v online světě.
+          </p>
+          <audio controls preload="none" class="podcast-audio">
+            <source src="media/tekuty_dusik_svatby_b2b_marketing.m4a" type="audio/mp4" />
+            Váš prohlížeč nepodporuje přehrávání audia. Můžete si ho stáhnout
+            <a href="media/tekuty_dusik_svatby_b2b_marketing.m4a">zde</a>.
+          </audio>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-wrap">
+      <div class="contact-info reveal">
+        <div class="section-label">Kontakt</div>
+        <h2 class="section-title">Pojďme <em>tvořit</em> společně</h2>
+        <p>Rádi vám připravíme nabídku na míru — ať jde o rezervaci stolu, catering pro desítky nebo stovky hostů, nebo zcela unikátní bar experience.</p>
+
+        <div class="contact-detail">
+          <div>
+            <span class="contact-detail-label">Email</span>
+            <span class="contact-detail-value">hello@noir-bar.cz</span>
+          </div>
+        </div>
+        <div class="contact-detail">
+          <div>
+            <span class="contact-detail-label">Telefon</span>
+            <span class="contact-detail-value">+420 777 000 000</span>
+          </div>
+        </div>
+        <div class="contact-detail">
+          <div>
+            <span class="contact-detail-label">Adresa</span>
+            <span class="contact-detail-value">Dlouhá 12, Praha 1</span>
+          </div>
+        </div>
+        <div class="contact-detail">
+          <div>
+            <span class="contact-detail-label">Otevírací doba</span>
+            <span class="contact-detail-value">Út–So 17:00–02:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-2">
+        <form class="contact-form" onsubmit="return false">
+          <div class="form-group">
+            <label class="form-label">Jméno</label>
+            <input type="text" class="form-input" placeholder="Vaše jméno" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" placeholder="vas@email.cz" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Typ události</label>
+            <select class="form-select form-input">
+              <option value="">Vyberte typ</option>
+              <option>Rezervace stolu</option>
+              <option>Firemní event</option>
+              <option>Svatba</option>
+              <option>Soukromá oslava</option>
+              <option>Jiné</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Zpráva</label>
+            <textarea class="form-textarea" placeholder="Popište vaši událost nebo dotaz..."></textarea>
+          </div>
+          <button type="submit" class="form-submit">Odeslat poptávku</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHATBOT UI -->
+  <button class="chatbot-toggle" id="chatbotToggle" aria-label="Chat s NOIR botem">
+    <span>Chat</span>
+    <div class="chatbot-toggle-dot"></div>
+  </button>
+
+  <div class="chatbot-panel" id="chatbotPanel" aria-label="NOIR chatbot" aria-hidden="true">
+    <div class="chatbot-header">
+      <div class="chatbot-header-left">
+        <div class="chatbot-avatar">N</div>
+        <div class="chatbot-title">
+          <div class="chatbot-title-main">NOIR bot</div>
+          <div class="chatbot-title-sub">rychlé dotazy o baru</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <div class="chatbot-status-pill">
+          <span class="chatbot-status-dot"></span>
+          ONLINE
+        </div>
+        <button
+          id="chatbotClose"
+          type="button"
+          aria-label="Zavřít chat"
+          style="
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.6);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15,23,42,0.9);
+            color: #9ca3af;
+            cursor: none;
+            padding: 0;
+          "
+        >
+          <svg viewBox='0 0 24 24' width='12' height='12' aria-hidden='true'>
+            <path d='M6 6L18 18M6 18L18 6' stroke='currentColor' stroke-width='1.6' stroke-linecap='round'/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="chatbot-body">
+      <div class="chatbot-system">
+        <span class="chatbot-system-dot"></span>
+        Napište dotaz nebo vyberte z tipů
+      </div>
+      <div class="chatbot-suggestions" id="chatbotSuggestions">
+        <button type="button" class="chatbot-suggestion" data-question="Jaká je otevírací doba?">Otevírací doba</button>
+        <button type="button" class="chatbot-suggestion" data-question="Chci poptat catering.">Catering</button>
+        <button type="button" class="chatbot-suggestion" data-question="Jak si můžu udělat rezervaci?">Rezervace</button>
+        <button type="button" class="chatbot-suggestion" data-question="Kde vás najdu?">Kde jste?</button>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages"></div>
+      <div class="chatbot-input-row">
+        <input
+          id="chatbotInput"
+          class="chatbot-input"
+          type="text"
+          autocomplete="off"
+          placeholder="Zeptejte se na cokoli ohledně NOIR…"
+        />
+        <button class="chatbot-send" id="chatbotSend" type="button" aria-label="Odeslat zprávu">
+          <span class="chatbot-send-icon">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+              <path d="M4 4L20 12L4 20L6.5 12L4 4Z" fill="currentColor" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">NOIR</div>
+    <ul class="footer-links">
+      <li><a href="#about">O nás</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#catering">Catering</a></li>
+      <li><a href="#contact">Kontakt</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 NOIR Bar. Všechna práva vyhrazena.</p>
+  </footer>
+
+  <script>
+    // Cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animateCursor() {
+      cursor.style.left = mx - 5 + 'px';
+      cursor.style.top = my - 5 + 'px';
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx - 18 + 'px';
+      ring.style.top = ry - 18 + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Active nav
+    const sections = document.querySelectorAll('section[id], div[id]');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 200) current = s.getAttribute('id');
+      });
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current ? 'var(--accent)' : '';
+      });
+    });
+
+    // Chatbot
+    const chatbotToggle = document.getElementById('chatbotToggle');
+    const chatbotPanel = document.getElementById('chatbotPanel');
+    const chatbotMessages = document.getElementById('chatbotMessages');
+    const chatbotInput = document.getElementById('chatbotInput');
+    const chatbotSend = document.getElementById('chatbotSend');
+    const chatbotClose = document.getElementById('chatbotClose');
+
+    function toggleChatbot() {
+      const open = chatbotPanel.classList.toggle('open');
+      chatbotPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (open) {
+        setTimeout(() => chatbotInput.focus(), 120);
+      }
+    }
+
+    chatbotToggle.addEventListener('click', toggleChatbot);
+    chatbotClose.addEventListener('click', () => {
+      if (chatbotPanel.classList.contains('open')) {
+        toggleChatbot();
+      }
+    });
+
+    function appendMessage(text, sender) {
+      const row = document.createElement('div');
+      row.className = 'chatbot-message-row ' + sender;
+
+      const wrapper = document.createElement('div');
+
+      const badge = document.createElement('div');
+      badge.className = 'chatbot-badge ' + sender;
+      badge.textContent = sender === 'user' ? 'Vy' : 'NOIR bot';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'chatbot-bubble ' + sender;
+      bubble.textContent = text;
+
+      wrapper.appendChild(badge);
+      wrapper.appendChild(bubble);
+
+      row.appendChild(wrapper);
+      chatbotMessages.appendChild(row);
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function appendTyping() {
+      const row = document.createElement('div');
+      row.className = 'chatbot-message-row bot';
+      row.id = 'chatbotTypingRow';
+
+      const wrapper = document.createElement('div');
+
+      const badge = document.createElement('div');
+      badge.className = 'chatbot-badge bot';
+      badge.textContent = 'NOIR bot';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'chatbot-bubble bot';
+      const dots = document.createElement('div');
+      dots.className = 'chatbot-typing';
+      dots.innerHTML = '<span></span><span></span><span></span>';
+      bubble.appendChild(dots);
+
+      wrapper.appendChild(badge);
+      wrapper.appendChild(bubble);
+      row.appendChild(wrapper);
+
+      chatbotMessages.appendChild(row);
+      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+      const typing = document.getElementById('chatbotTypingRow');
+      if (typing) {
+        typing.remove();
+      }
+    }
+
+    function getBotReply(message) {
+      const m = message.toLowerCase();
+
+      if (m.includes('otevírací') || m.includes('oteviraci') || m.includes('otevřeno') || m.includes('otevreno')) {
+        return 'NOIR je otevřený od úterý do soboty, vždy 17:00–02:00. Na větší skupiny je lepší udělat rezervaci předem.';
+      }
+
+      if (m.includes('rezervac') || m.includes('stůl') || m.includes('stul') || m.includes('book') || m.includes('reserve')) {
+        return 'Rezervaci vyřídíme nejrychleji přes e‑mail hello@noir-bar.cz nebo telefonicky na +420 777 000 000. Napište nám termín, počet osob a případná přání.';
+      }
+
+      if (m.includes('catering') || m.includes('event') || m.includes('večír') || m.includes('vecir') || m.includes('svatb') || m.includes('firemn')) {
+        return 'Na eventy zajišťujeme mobilní bar, tým barmanů i koktejlové menu na míru. Do formuláře v sekci Kontakt stačí napsat typ akce, termín a orientační počet hostů, ozveme se obvykle do 24 hodin.';
+      }
+
+      if (
+        m.includes('adresa') ||
+        m.includes('kde jste') ||
+        m.includes('kde vás najdu') ||
+        m.includes('kde vas najdu') ||
+        m.includes('kde se nachá') ||
+        m.includes('kde se nacha')
+      ) {
+        return 'Najdete nás na adrese Dlouhá 12, Praha 1. Nejbližší MHD je Náměstí Republiky nebo Staroměstská.';
+      }
+
+      if (m.includes('telefon') || m.includes('telefonní') || m.includes('cislo') || m.includes('číslo')) {
+        return 'Na bar nebo ohledně eventu volejte +420 777 000 000.';
+      }
+
+      if (m.includes('email') || m.includes('mail')) {
+        return 'Náš e‑mail je hello@noir-bar.cz. Pošlete nám základní informace a co nejdřív se ozveme zpět.';
+      }
+
+      if (m.includes('menu') || m.includes('drink') || m.includes('koktejl') || m.includes('koktail')) {
+        return 'Ukázku signature drinků najdete v sekci Koktejly. Celé menu vám rádi pošleme na vyžádání – stačí krátká zpráva přes formulář v sekci Kontakt.';
+      }
+
+      return 'Rozumíme, že dotaz může být konkrétnější. Napište ho prosím co nejstručněji (např. „rezervace pátek 20:00 pro 6 osob“ nebo „catering pro 80 lidí“). Pro detailní domluvu je ideální e‑mail hello@noir-bar.cz nebo formulář v sekci Kontakt.';
+    }
+
+    function handleUserMessage(raw) {
+      const message = raw.trim();
+      if (!message) return;
+
+      appendMessage(message, 'user');
+      chatbotInput.value = '';
+
+      appendTyping();
+
+      setTimeout(() => {
+        removeTyping();
+        const reply = getBotReply(message);
+        appendMessage(reply, 'bot');
+      }, 500 + Math.min(message.length * 10, 800));
+    }
+
+    chatbotSend.addEventListener('click', () => handleUserMessage(chatbotInput.value));
+    chatbotInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleUserMessage(chatbotInput.value);
+      }
+    });
+
+    document.getElementById('chatbotSuggestions').addEventListener('click', e => {
+      const btn = e.target.closest('.chatbot-suggestion');
+      if (!btn) return;
+      const q = btn.getAttribute('data-question') || btn.textContent;
+      handleUserMessage(q);
+    });
+
+    // Úvodní zpráva
+    appendMessage(
+      'Ahoj, jsem NOIR bot. Umím poradit s otevírací dobou, rezervací, cateringem a základními informacemi o baru. Když půjde o detaily, nejlépe to spolu dořešíme přes e‑mail nebo telefon.',
+      'bot'
+    );
+  </script>
+</body>
+</html>
