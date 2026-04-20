@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="chatbase-bot-id" content="YOUR_CHATBASE_BOT_ID" />
   <title>Zážitkový bar — Koktejlový Bar & Catering</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1149,19 +1150,22 @@
       });
     })();
 
-    (function loadChatbaseWidget() {
-      const CHATBASE_BOT_ID = 'YOUR_CHATBASE_BOT_ID';
-      if (!CHATBASE_BOT_ID || CHATBASE_BOT_ID === 'YOUR_CHATBASE_BOT_ID') {
-        console.warn('Chatbase není nastavené: doplňte CHATBASE_BOT_ID v cocktail-bar.html.');
-        return;
-      }
+    function getChatbaseBotId() {
+      const meta = document.querySelector('meta[name="chatbase-bot-id"]');
+      return meta ? meta.content.trim() : '';
+    }
 
-      const script = document.createElement('script');
-      script.src = 'https://www.chatbase.co/embed.min.js';
-      script.id = CHATBASE_BOT_ID;
-      script.domain = 'www.chatbase.co';
-      document.body.appendChild(script);
-    })();
+    function loadChatbaseWidget(botId) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://www.chatbase.co/embed.min.js';
+        script.id = botId;
+        script.domain = 'www.chatbase.co';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Nepodařilo se načíst Chatbase widget.'));
+        document.body.appendChild(script);
+      });
+    }
 
     async function identifyChatbaseUser() {
       try {
@@ -1182,7 +1186,22 @@
       }
     }
 
-    identifyChatbaseUser();
+    async function initChatbase() {
+      const botId = getChatbaseBotId();
+      if (!botId || botId === 'YOUR_CHATBASE_BOT_ID') {
+        console.error('Chatbase není nastavené: doplňte <meta name="chatbase-bot-id" ...> v cocktail-bar.html.');
+        return;
+      }
+
+      try {
+        await loadChatbaseWidget(botId);
+        await identifyChatbaseUser();
+      } catch (error) {
+        console.error('Inicializace Chatbase selhala:', error);
+      }
+    }
+
+    initChatbase();
   </script>
 </body>
 </html>
