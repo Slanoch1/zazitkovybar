@@ -1132,76 +1132,38 @@
     });
 
     // Chatbase chatbot
-    (function initChatbaseLoader() {
-      if (window.chatbase && window.chatbase.q) return;
+    (function() {
+      if (!window.chatbase || window.chatbase('getState') !== 'initialized') {
+        window.chatbase = function() {
+          if (!window.chatbase.q) {
+            window.chatbase.q = [];
+          }
+          window.chatbase.q.push(arguments);
+        };
+        window.chatbase = new Proxy(window.chatbase, {
+          get(target, prop) {
+            if (prop === 'q') {
+              return target.q;
+            }
+            return (...args) => target(prop, ...args);
+          }
+        });
+      }
 
-      const chatbaseProxy = function() {
-        chatbaseProxy.q.push(arguments);
-      };
-      chatbaseProxy.q = [];
-
-      window.chatbase = new Proxy(chatbaseProxy, {
-        get(target, prop) {
-          if (prop === 'q') return target.q;
-          return function() {
-            return target(prop, ...arguments);
-          };
-        }
-      });
-    })();
-
-    function getChatbaseBotId() {
-      const meta = document.querySelector('meta[name="chatbase-bot-id"]');
-      return meta ? meta.content.trim() : '';
-    }
-
-    function loadChatbaseWidget(botId) {
-      return new Promise((resolve, reject) => {
+      const onLoad = function() {
         const script = document.createElement('script');
         script.src = 'https://www.chatbase.co/embed.min.js';
-        script.id = botId;
+        script.id = '-NTrUE-U2zSyDqIS-18ew';
         script.domain = 'www.chatbase.co';
-        script.onload = resolve;
-        script.onerror = () => reject(new Error('Nepodařilo se načíst Chatbase widget.'));
         document.body.appendChild(script);
-      });
-    }
+      };
 
-    async function identifyChatbaseUser() {
-      try {
-        const response = await fetch('/api/chatbase-token', {
-          method: 'GET',
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error('Token endpoint failed with status ' + response.status);
-        }
-
-        const data = await response.json();
-        if (!data.token) return;
-        window.chatbase('identify', { token: data.token });
-      } catch (error) {
-        console.error('Chatbase identify selhalo:', error);
+      if (document.readyState === 'complete') {
+        onLoad();
+      } else {
+        window.addEventListener('load', onLoad);
       }
-    }
-
-    async function initChatbase() {
-      const botId = getChatbaseBotId();
-      if (!botId || botId === 'YOUR_CHATBASE_BOT_ID') {
-        console.error('Chatbase není nastavené: doplňte <meta name="chatbase-bot-id" ...> v cocktail-bar.html.');
-        return;
-      }
-
-      try {
-        await loadChatbaseWidget(botId);
-        await identifyChatbaseUser();
-      } catch (error) {
-        console.error('Inicializace Chatbase selhala:', error);
-      }
-    }
-
-    initChatbase();
+    })();
   </script>
 </body>
 </html>
