@@ -1,0 +1,7 @@
+{
+  "name": "zazitkovy-bar",
+  "private": true,
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}
